@@ -1,0 +1,22 @@
+[package]
+name = "radicom-samples"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.89"
+publish = false
+description = "Non-rendering DICOM examples for radicom and radicom-codecs"
+
+[dependencies]
+radicom = "0.2.0"
+radicom-network = "0.2.0"
+radicom-codecs = "0.2.0"
+async-trait = "0.1"
+futures = "0.3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "time", "sync", "io-util"] }
+clap = { version = "4", features = ["derive"] }
+axum = "0.8"
+serde = { version = "1", features = ["derive"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,5 +1,15 @@
 # Rust build artifacts
 /target
+/data
+/received
+/media
+/retrieved
+/moved
+/downloaded.dcm
+/rle.dcm
+/restored.dcm
+/lossy.dcm
+/docs/design/2026-11-09-samples-design.md
 **/*.rs.bk
 
 # Kept: Cargo.lock (workspace contains tools; reproducible builds)
