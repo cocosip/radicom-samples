@@ -70,50 +70,56 @@ cargo run --example store_scp -- --output received
 
 ```powershell
 cargo run --example echo_scu
-cargo run --example store_scu -- data/sample.dcm
+cargo run --example store_scu
 ```
 
 默认地址 `127.0.0.1:11112`，Called AE `SAMPLES_SCP`，Calling AE `SAMPLES_SCU`。
 SCP 支持 `--address`、`--ae`；SCU 支持 `--address`、`--calling-ae`、`--called-ae`。
-`store_scu` 可以接收多个文件路径。SCP 默认声明 SC/CT/MR 存储类，可通过重复的 `--sop-class <UID>` 扩充。
+`store_scu` 省略文件参数时发送内置的 16×16 合成实例（与 `create_dicom` 内容相同，SOP Instance UID `2.25.102`），
+因此不必先准备输入文件；给出路径时改为发送这些文件，可多个。SCP 默认声明 SC/CT/MR 存储类，可通过重复的 `--sop-class <UID>` 扩充。
 
 接收文件以校验后的 SOP Instance UID 命名，如 `received/2.25.102.dcm`。
 只有写入成功才返回成功状态；重复实例、UID 不一致和写入失败均返回失败，不覆盖旧文件。
+内置实例的 UID 固定为 `2.25.102`，所以重复发送前需换一个 `--output` 目录（如 `received2`）。
 发送端和 QR 示例在启动时注册 codecs，可将压缩输入转换成对端协商的非压缩语法；
 本机流程已验证 RLE 输入的 C-STORE 与 C-GET 像素保持一致。
 
 ## 3. 查询与检索
 
-终端 A 启动文件目录快照：
+终端 A 启动内置的 2 个实例（Study `2.25.100`、Series `2.25.101`、Instance `2.25.102`/`2.25.103`）：
 
 ```powershell
-cargo run --example qr_scp -- --input data --destination SAMPLES_SCP=127.0.0.1:11112
+cargo run --example qr_scp
 ```
+
+用 `--input <目录>` 改为服务自己的 `.dcm` 快照。
 
 终端 B 查询并通过 C-GET 接收：
 
 ```powershell
+cargo run --example qr_scu -- find
 cargo run --example qr_scu -- find --patient-name "SAMPLE^*" --study-date 20260101-20261231
 cargo run --example qr_scu -- find --level series --study 2.25.100
 cargo run --example qr_scu -- find --level image --study 2.25.100 --series 2.25.101
-cargo run --example qr_scu -- get --study 2.25.100 --output retrieved
+cargo run --example qr_scu -- get
 ```
 
 默认 QR 地址 `127.0.0.1:11113`、Called AE `QR_SCP`。
 连接参数写在子命令之前，如 `qr_scu --address 127.0.0.1:11113 find`。
+GET/MOVE 省略 UID 时使用内置示例的 Study/Series/Instance UID，不必先复制 FIND 的结果。
 
 C-MOVE 会另建关联向目标存储 SCP 发送实例。目标必须在 `qr_scp` 的 `--destination AE=host:port` 中配置，
-未知 AE 返回失败，不直接连接请求中的任意地址。
+默认 `SAMPLES_SCP=127.0.0.1:11112`，传入自己的映射会替换该默认值；未知 AE 返回失败，不直接连接请求中的任意地址。
 先在另一个终端启动新的目标目录，避免上一步 STORE 的重复实例：
 
 ```powershell
 cargo run --example store_scp -- --output moved
 ```
 
-停止之前占用 11112 的 `store_scp` 后，再运行上面的命令，然后：
+停止之前占用 11112 的 `store_scp` 后，再运行：
 
 ```powershell
-cargo run --example qr_scu -- move --study 2.25.100 --destination SAMPLES_SCP
+cargo run --example qr_scu -- move
 ```
 
 `--level study|series|image` 选择层级。Series 查询要求 `--study`，Image 查询要求 `--study` 和 `--series`；
@@ -190,8 +196,10 @@ SCP 检查引用、像素形状和生命周期，仅支持一份、A4、`STANDAR
 ## 7. WADO-URI（只返回 DICOM）
 
 ```powershell
-cargo run --example wado -- --directory data
+cargo run --example wado
 ```
+
+默认服务内置的 2 个实例；用 `--directory <目录>` 改为服务自己的 `.dcm` 快照。
 
 在另一终端下载：
 
@@ -238,7 +246,8 @@ MWL/MPPS、打印对象流程及 HTTP 内容协商/错误请求。
 CI 配置包含 Linux/Windows stable 及 Rust 1.89 编译检查；本地结果不能替代远程 CI。
 
 这些是受信本地环境的学习示例，未配置 TLS、身份认证、数据库或生产服务管理。
-QR/WADO 在启动时读取目录快照，新增文件需重启；目录扫描仅识别普通 `.dcm` 文件，不跟随符号链接。
+QR/WADO 不给 `--input`/`--directory` 时使用内置的 2 个合成实例，给了目录则在启动时读取快照、新增文件需重启；
+目录扫描仅识别普通 `.dcm` 文件，不跟随符号链接。
 QR 的实例数上限为 65,535。Worklist/打印对象保存在内存且由关联共享，进程重启后丢失；
 provider 回调没有关联身份，示例不提供多租户对象隔离。
 真实 PACS、真实打印机、第三方互操作，以及全部 codec/位深/颜色组合需要单独验证。

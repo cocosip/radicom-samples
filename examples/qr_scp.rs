@@ -1,21 +1,22 @@
 use clap::Parser;
 use radicom_samples::{
-    files::load_files,
+    files::{load_files, sample_archive},
     network::{run_server, FileProvider},
     Result,
 };
 use std::{collections::HashMap, path::PathBuf};
 
-/// Serve a startup snapshot of .dcm files via Study Root FIND/GET/MOVE.
+/// Serve a startup snapshot of .dcm files, or the built-in archive, via Study Root FIND/GET/MOVE.
 #[derive(Parser)]
 struct Args {
     #[arg(long, default_value = "127.0.0.1:11113")]
     address: String,
     #[arg(long, default_value = "QR_SCP")]
     ae: String,
-    #[arg(long, default_value = "archive")]
-    input: PathBuf,
-    /// Trusted C-MOVE mapping AE=host:port (repeatable).
+    /// Directory snapshot; omitted serves the built-in two-instance archive.
+    #[arg(long)]
+    input: Option<PathBuf>,
+    /// Trusted C-MOVE mapping AE=host:port (repeatable); default SAMPLES_SCP=127.0.0.1:11112.
     #[arg(long, value_name = "AE=ADDRESS")]
     destination: Vec<String>,
 }
@@ -26,6 +27,9 @@ async fn main() -> Result<()> {
     radicom_codecs::install();
     let args = Args::parse();
     let mut destinations = HashMap::new();
+    if args.destination.is_empty() {
+        destinations.insert("SAMPLES_SCP".to_owned(), "127.0.0.1:11112".to_owned());
+    }
     for entry in args.destination {
         let (ae, address) = entry
             .split_once('=')
@@ -41,7 +45,10 @@ async fn main() -> Result<()> {
             return Err("duplicate destination AE".into());
         }
     }
-    let files = load_files(&args.input)?;
+    let files = match args.input {
+        Some(directory) => load_files(&directory)?,
+        None => sample_archive()?,
+    };
     println!("Loaded {} instances", files.len());
     let provider = FileProvider::new(files, None, destinations, args.ae.clone())?;
     run_server(&args.address, &args.ae, provider).await

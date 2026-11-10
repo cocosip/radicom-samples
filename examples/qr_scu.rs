@@ -40,7 +40,7 @@ enum Operation {
         #[command(flatten)]
         query: Query,
         /// AE configured with --destination on qr_scp.
-        #[arg(long)]
+        #[arg(long, default_value = "SAMPLES_SCP")]
         destination: String,
     },
 }
@@ -54,10 +54,13 @@ enum Level {
 struct Query {
     #[arg(long, value_enum, default_value = "study")]
     level: Level,
+    /// Study Instance UID; GET/MOVE default to the built-in 2.25.100.
     #[arg(long)]
     study: Option<String>,
+    /// Series Instance UID; series/image GET/MOVE default to 2.25.101.
     #[arg(long)]
     series: Option<String>,
+    /// SOP Instance UID; image-level GET/MOVE default to 2.25.102.
     #[arg(long)]
     instance: Option<String>,
     #[arg(long)]
@@ -79,6 +82,17 @@ impl Query {
             Level::Series => QueryRetrieveLevel::Series,
             Level::Image => QueryRetrieveLevel::Image,
         }
+    }
+    /// Demo defaults keep GET/MOVE runnable without replaying values from FIND.
+    fn with_demo_uids(mut self) -> Self {
+        self.study.get_or_insert_with(|| "2.25.100".to_owned());
+        if matches!(self.level, Level::Series | Level::Image) {
+            self.series.get_or_insert_with(|| "2.25.101".to_owned());
+        }
+        if matches!(self.level, Level::Image) {
+            self.instance.get_or_insert_with(|| "2.25.102".to_owned());
+        }
+        self
     }
     fn keys(&self, identifier: &mut Dataset) {
         for (tag, vr, value) in [
@@ -130,6 +144,7 @@ async fn main() -> Result<()> {
             output,
             sop_class,
         } => {
+            let query = query.with_demo_uids();
             client = client.with_reverse_store_handler(receive_handler(output));
             let mut request = CGetRequest::new(query.level(), QueryRoot::Study, 0)?;
             query.keys(&mut request.identifier);
@@ -150,6 +165,7 @@ async fn main() -> Result<()> {
                 .status
         }
         Operation::Move { query, destination } => {
+            let query = query.with_demo_uids();
             let mut request = CMoveRequest::new(query.level(), QueryRoot::Study, destination, 0)?;
             query.keys(&mut request.identifier);
             let responses = client.send_c_move(&request).await?;

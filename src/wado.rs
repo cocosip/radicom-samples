@@ -2,9 +2,10 @@
 //! Explicit VR Little Endian is the default; transferSyntax=* preserves bytes.
 //! An explicit registered transfer syntax may transcode pixels (including lossy
 //! conversion when explicitly requested). Rendering/anonymization controls fail.
-//! Files are snapshotted in memory at startup; restart to see directory changes.
+//! Files are snapshotted in memory at startup, or the built-in archive is served;
+//! restart to see directory changes.
 
-use crate::files::{load_files, validate_uid};
+use crate::files::{load_files, sample_archive, validate_uid};
 use axum::{
     body::Bytes,
     extract::{Query, State},
@@ -43,23 +44,45 @@ pub fn router(directory: &Path) -> crate::Result<Router> {
         let bytes = Bytes::from(std::fs::read(
             file.source().ok_or("Missing DICOM source path")?,
         )?);
-        // Parse the snapshot so identifiers always describe the exact served bytes.
-        let file = DicomFile::from_bytes(&bytes, &Default::default())?;
-        let key = [
-            file.dataset.get_str(Tag::STUDY_INSTANCE_UID)?,
-            file.dataset.get_str(Tag::SERIES_INSTANCE_UID)?,
-            file.dataset.get_str(Tag::SOP_INSTANCE_UID)?,
-        ];
-        for uid in &key {
-            validate_uid(uid)?;
-        }
-        if instances.insert(key, bytes).is_some() {
-            return Err("Duplicate Study/Series/SOP Instance UID in WADO directory".into());
-        }
+        insert(&mut instances, bytes)?;
     }
-    Ok(Router::new()
+    Ok(serve(instances))
+}
+
+/// The same router backed by the built-in archive, so no directory is needed.
+pub fn sample_router() -> crate::Result<Router> {
+    radicom_codecs::install();
+    let mut instances = BTreeMap::new();
+    for file in sample_archive()? {
+        insert(
+            &mut instances,
+            Bytes::from(file.to_bytes(&Default::default())?),
+        )?;
+    }
+    Ok(serve(instances))
+}
+
+/// Parse each snapshot so identifiers always describe the exact served bytes.
+fn insert(instances: &mut BTreeMap<[String; 3], Bytes>, bytes: Bytes) -> crate::Result<()> {
+    let file = DicomFile::from_bytes(&bytes, &Default::default())?;
+    let key = [
+        file.dataset.get_str(Tag::STUDY_INSTANCE_UID)?,
+        file.dataset.get_str(Tag::SERIES_INSTANCE_UID)?,
+        file.dataset.get_str(Tag::SOP_INSTANCE_UID)?,
+    ];
+    for uid in &key {
+        validate_uid(uid)?;
+    }
+    if instances.insert(key, bytes).is_some() {
+        return Err("Duplicate Study/Series/SOP Instance UID in WADO directory".into());
+    }
+    Ok(())
+}
+
+fn serve(instances: BTreeMap<[String; 3], Bytes>) -> Router {
+    Router::new()
         .route("/wado", get(retrieve))
-        .with_state(Arc::new(instances)))
+        .with_state(Arc::new(instances))
 }
 
 async fn retrieve(

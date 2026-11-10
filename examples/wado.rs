@@ -5,9 +5,9 @@ use std::{net::SocketAddr, path::PathBuf};
 #[derive(Parser)]
 #[command(about = "Serve local DICOM instances at /wado (WADO-URI; no rendering)")]
 struct Args {
-    /// Directory containing .dcm files; read once at startup.
+    /// Directory containing .dcm files, read once at startup; omitted serves the built-in archive.
     #[arg(long)]
-    directory: PathBuf,
+    directory: Option<PathBuf>,
     #[arg(long, default_value = "127.0.0.1:8080")]
     bind: SocketAddr,
 }
@@ -15,7 +15,10 @@ struct Args {
 #[tokio::main]
 async fn main() -> Result {
     let args = Args::parse();
-    let app = wado::router(&args.directory)?;
+    let app = match &args.directory {
+        Some(directory) => wado::router(directory)?,
+        None => wado::sample_router()?,
+    };
     let listener = tokio::net::TcpListener::bind(args.bind).await?;
     println!("WADO listening on http://{}/wado", listener.local_addr()?);
     axum::serve(listener, app)

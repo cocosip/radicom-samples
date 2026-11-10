@@ -59,6 +59,21 @@ fn media_references_resolve_to_copied_instances() -> Result {
 }
 
 #[test]
+fn built_in_archive_is_two_instances_of_one_study() -> Result {
+    let files = sample_archive()?;
+    let mut instances = Vec::new();
+    for file in &files {
+        instances.push(file.dataset.get_str(Tag::SOP_INSTANCE_UID)?);
+    }
+    assert_eq!(instances, ["2.25.102", "2.25.103"]);
+    for file in &files {
+        assert_eq!(file.dataset.get_str(Tag::STUDY_INSTANCE_UID)?, "2.25.100");
+        assert_eq!(file.dataset.get_str(Tag::SERIES_INSTANCE_UID)?, "2.25.101");
+    }
+    Ok(())
+}
+
+#[test]
 fn comparison_reports_nested_and_binary_changes() -> Result {
     let mut left = Dataset::new();
     left.insert_value(Tag::PIXEL_DATA, vec![0u8, 1]);

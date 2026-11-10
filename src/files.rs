@@ -62,6 +62,18 @@ pub fn sample_file() -> Result<DicomFile> {
     Ok(DicomFile::from_dataset(dataset))
 }
 
+/// Built-in QR archive: the sample image plus a second instance in the same study.
+pub fn sample_archive() -> Result<Vec<DicomFile>> {
+    let mut files = Vec::new();
+    for instance_uid in ["2.25.102", "2.25.103"] {
+        let mut file = sample_file()?;
+        file.dataset
+            .try_insert_str(Tag::SOP_INSTANCE_UID, Vr::Ui, instance_uid)?;
+        files.push(file);
+    }
+    Ok(files)
+}
+
 pub fn validate_uid(uid: &str) -> Result {
     if !Uid::is_valid(uid) || !uid.bytes().all(|b| b.is_ascii_digit() || b == b'.') {
         return Err(format!("Invalid DICOM UID: {uid:?}").into());

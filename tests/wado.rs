@@ -7,12 +7,15 @@ use tokio::{
 
 const QUERY: &str = "requestType=WADO&studyUID=2.25.100&seriesUID=2.25.101&objectUID=2.25.102&contentType=application%2Fdicom";
 
-async fn server(directory: &Path) -> (SocketAddr, tokio::task::JoinHandle<()>) {
-    let app = wado::router(directory).unwrap();
+async fn serve(app: axum::Router) -> (SocketAddr, tokio::task::JoinHandle<()>) {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let address = listener.local_addr().unwrap();
     let task = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
     (address, task)
+}
+
+async fn server(directory: &Path) -> (SocketAddr, tokio::task::JoinHandle<()>) {
+    serve(wado::router(directory).unwrap()).await
 }
 
 async fn request(address: SocketAddr, query: &str, accept: &str) -> (u16, String, Vec<u8>) {
@@ -68,6 +71,29 @@ async fn requires_all_three_identifiers_to_match() {
     for uid in ["2.25.100", "2.25.101", "2.25.102"] {
         let query = QUERY.replace(uid, "2.25.999");
         assert_eq!(request(address, &query, "application/dicom").await.0, 404);
+    }
+    task.abort();
+}
+
+#[tokio::test]
+async fn built_in_archive_needs_no_directory() {
+    let (address, task) = serve(wado::sample_router().unwrap()).await;
+    for object in ["2.25.102", "2.25.103"] {
+        let query = QUERY.replace("2.25.102", object);
+        let (status, _, body) = request(
+            address,
+            &format!("{query}&transferSyntax=*"),
+            "application/dicom",
+        )
+        .await;
+        assert_eq!(status, 200, "{object}");
+        let file = radicom::io::file::DicomFile::from_bytes(&body, &Default::default()).unwrap();
+        assert_eq!(
+            file.dataset
+                .get_str(radicom::Tag::SOP_INSTANCE_UID)
+                .unwrap(),
+            object
+        );
     }
     task.abort();
 }
