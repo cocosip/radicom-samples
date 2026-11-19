@@ -24,7 +24,10 @@ use radicom_network::{
     cmove::{store_to_destination_with_failures, CMoveRequest, CMoveResponse, SubOperationSummary},
     dimse::status,
     server::{ClientOptions, DicomServer, ReverseStoreHandler, ServerOptions},
-    services::{CEchoRequest, CEchoResponse, CStoreRequest, CStoreResponse, ServiceProvider},
+    services::{
+        AssociationInfo, CEchoRequest, CEchoResponse, CStoreRequest, CStoreResponse,
+        ServiceProvider,
+    },
 };
 use std::{
     collections::{HashMap, HashSet},
@@ -419,9 +422,10 @@ impl ServiceProvider for FileProvider {
         }
         Box::pin(stream::iter(events))
     }
-    fn on_c_move<'a>(
+    fn on_c_move_with<'a>(
         &'a self,
         request: &'a CMoveRequest,
+        peer: &'a AssociationInfo,
     ) -> BoxStream<'a, radicom_network::error::Result<CMoveResponse>> {
         let Some(destination) = self.destinations.get(&request.destination_ae) else {
             return Box::pin(stream::iter([Ok(CMoveResponse::failure(
@@ -448,8 +452,9 @@ impl ServiceProvider for FileProvider {
                 &self.ae,
                 &request.destination_ae,
                 &files,
-                // shortcut: provider API omits requester AE; add association context before tagging MOVE originator.
-                None,
+                // 0.3 exposes the requester (peer-asserted) and the C-MOVE
+                // message ID, so the destination can record the real originator.
+                Some((peer.calling_ae.as_str(), request.message_id)),
                 client_options(),
             )
             .await;

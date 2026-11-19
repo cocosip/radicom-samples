@@ -1,8 +1,5 @@
 use clap::Parser;
-use radicom::{
-    model::{tag::Tag, uid::Uid, vr::Vr},
-    print::FilmSession,
-};
+use radicom::{model::uid::Uid, print::FilmSession};
 use radicom_network::{dimse::CommandField, print_sop::uids};
 use radicom_samples::{
     network::client,
@@ -36,9 +33,8 @@ async fn main() -> Result {
     let film_uid = Uid::generate_value();
     let mut film = session.create_film_box();
     film.set_film_size("A4")?;
-    let mut film_attributes = film.into_dataset();
-    // DICOM defines this field as ST; the 0.2 model setter incorrectly uses CS.
-    film_attributes.insert_str(Tag::IMAGE_DISPLAY_FORMAT, Vr::St, "STANDARD\\1,1");
+    film.set_image_display_format("STANDARD\\1,1")?;
+    let film_attributes = film.into_dataset();
     check_n(
         &client
             .send_n_service(&n_request(

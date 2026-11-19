@@ -7,9 +7,9 @@ publish = false
 description = "Non-rendering DICOM examples for radicom and radicom-codecs"
 
 [dependencies]
-radicom = "0.2.0"
-radicom-network = "0.2.0"
-radicom-codecs = "0.2.0"
+radicom = "0.3.1"
+radicom-network = "0.3.1"
+radicom-codecs = "0.3.1"
 async-trait = "0.1"
 futures = "0.3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "time", "sync", "io-util"] }

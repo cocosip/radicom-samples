@@ -28,8 +28,8 @@ async fn print_tcp_validates_references_and_records_one_image_job() {
         session.set_copies(1);
         let mut film = session.create_film_box();
         film.set_film_size("A4").unwrap();
-        let mut film_data = film.into_dataset();
-        film_data.insert_str(Tag::IMAGE_DISPLAY_FORMAT, Vr::St, "STANDARD\\1,1");
+        film.set_image_display_format("STANDARD\\1,1").unwrap();
+        let film_data = film.into_dataset();
         let session_create = n_request(
             CommandField::NCreateRq,
             uids::BASIC_FILM_SESSION,

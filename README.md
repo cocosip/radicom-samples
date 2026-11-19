@@ -7,7 +7,7 @@
 
 ## 环境与构建
 
-Rust **1.89+**。依赖 crates.io 发布的 **0.2 系列** radicom、radicom-network、radicom-codecs，
+Rust **1.89+**。依赖 crates.io 发布的 **0.3 系列** radicom、radicom-network、radicom-codecs，
 无需检出两个库，也不需要 C/C++ 编解码库。未启用 `render` 功能。
 
 ```powershell
@@ -130,8 +130,8 @@ GET 默认协商 SC/CT/MR 的反向 C-STORE，可用重复的 `--sop-class` 指�
 UID 精确匹配（FIND 支持反斜杠分隔的 UID 列表）；Study Date 支持 `YYYYMMDD`、闭区间和单侧开区间。
 其他已声明的键仅用于返回；未支持的键会明确失败。响应中的成功、Pending、失败及子操作计数都可在终端查看。
 文本/日期过滤只适用于 FIND；GET/MOVE 只接受唯一 UID 标识，不接受人口学条件。
-0.2 的 provider 请求未暴露发起方 AE，示例的 MOVE 子操作不会编造 Move Originator AE；
-需要严格依赖该字段进行关联的第三方系统仍需单独核对。
+0.3 通过 `on_*_with` 向 provider 暴露发起方 AE（peer-asserted）；MOVE 子操作会带上该 AE 和对应的 C-MOVE 消息 ID，
+需要更强身份保证的场景仍应依赖 TLS 或 User Identity，而不是该字段。
 
 ## 4. Worklist 与 MPPS
 

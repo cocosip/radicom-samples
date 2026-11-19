@@ -159,21 +159,21 @@ checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 
 [[package]]
 name = "bumpalo"
-version = "3.20.3"
+version = "3.20.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
+checksum = "87a0cf66fd1eb2fb7b822cb78370d82303750809bc6ba855f3f58e517d3238db"
 
 [[package]]
 name = "bytes"
-version = "1.12.1"
+version = "1.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
+checksum = "776dfebd015e2d8732c684a2c71003674ccb49457b539b9e82151ba38e96dd7c"
 
 [[package]]
 name = "cc"
-version = "1.11.1"
+version = "1.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ff2a8126fff0f8c839080d619675a585e61720bb12d2baceae45769fd66f155"
+checksum = "33ef9e3e8154a45c7a95cff4c1299702106ad94062d7bb85fdc5d3a5afd91d45"
 dependencies = [
  "find-msvc-tools",
  "shlex",
@@ -256,9 +256,9 @@ checksum = "7f8f80099a98041a3d1622845c271458a2d73e688351bf3cb999266764b81d48"
 
 [[package]]
 name = "crc32fast"
-version = "1.5.4"
+version = "1.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f97d3416d5337d15c4b0d78c8c91df922ca143f57ec20e2d1c188333047ef04"
+checksum = "2b929dd2a135771f40afabd1073f85eed59c800b7c61901e5c254270497dad64"
 dependencies = [
  "cfg-if",
 ]
@@ -612,9 +612,9 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "1.2.4"
+version = "1.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1788edb87fdc09c7e26304471e2f5be8cdefb1b6930d6e3985fc02ff53bf86ee"
+checksum = "20521a903f02b0a573cd6840e9d0a5a0cc043d361fe924092cd70f8556cc9c4a"
 dependencies = [
  "libc",
  "wasi",
@@ -680,9 +680,9 @@ dependencies = [
 
 [[package]]
 name = "quick-xml"
-version = "0.37.5"
+version = "0.42.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "331e97a1af0bf59823e6eadffe373d7b27f485be8748f71471c662c1f269b7fb"
+checksum = "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b"
 dependencies = [
  "memchr",
 ]
@@ -704,9 +704,9 @@ checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 
 [[package]]
 name = "radicom"
-version = "0.2.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01edb31d39843676c41d45b1ad060d2fed91d4a385c36bf88510badb6120789f"
+checksum = "3a205b481da8374d15bcca8f5126e4e4b71bd8fa27a8cfc193b12cb8264dabd8"
 dependencies = [
  "bytes",
  "chrono",
@@ -722,9 +722,9 @@ dependencies = [
 
 [[package]]
 name = "radicom-codecs"
-version = "0.2.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b958cc39b95051e5dba25e93e0226fe59fd352f11e5af1d4bc1748504f10c1f8"
+checksum = "1e50f3b397ac408d76e78530b476baf66c04a4e862927d55e7ebc989e88f6874"
 dependencies = [
  "radicom",
  "radicom-codecs-jpeg",
@@ -735,51 +735,51 @@ dependencies = [
 
 [[package]]
 name = "radicom-codecs-jpeg"
-version = "0.2.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c0b1b3dcdec18dcdec6e74b281da513ab0b10afd9a0845a674699fbb469d0bf"
+checksum = "1a438084923e8691e3d494fa7c7d2e35d139f60487f8d06e3c2c8666691dda18"
 dependencies = [
  "radicom",
 ]
 
 [[package]]
 name = "radicom-codecs-jpeg-ls"
-version = "0.2.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9f9c8d406fd1ffc40b62cf20ff5e3a7f72fdd9568a50880d82cce5269ffdcc7"
+checksum = "58076c078a9793595c4e211d17dd54111b5aba19a9f008d27f0cd4194631b2fc"
 dependencies = [
  "radicom",
 ]
 
 [[package]]
 name = "radicom-codecs-jpeg2000"
-version = "0.2.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16a5fdbf22f476d69485b8e62d11ce41a838edacfc4914d7ed1af557436c7bfb"
+checksum = "d16281cb97abb790aa9a3c9215a1b19489c05f73c58587cebe660268a8064614"
 dependencies = [
  "radicom",
 ]
 
 [[package]]
 name = "radicom-codecs-rle"
-version = "0.2.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac7c9268e237e9fbc35f0fa0b7214150e382adf374b83edafe3be5072e887546"
+checksum = "c9d4c77253e600a0b5aff0cc6b65473209e39f10597449e2a874272bbac55002"
 dependencies = [
  "radicom",
 ]
 
 [[package]]
 name = "radicom-dict"
-version = "0.2.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b65920e535a9f942647df817f421ac2ccdc2857c166e3c352147eb649d2c14d7"
+checksum = "fee398e7fe1b5af4ae7b962cac483a20ccbd3649a6247c38c9b8b0a5bc6b01d7"
 
 [[package]]
 name = "radicom-network"
-version = "0.2.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ab540d5f2d8c9b212709a7df7959e8cd35dc8d0754b0b39e12bb694fe9278fa"
+checksum = "67a7e8fe23b1408cd5604b1540199ef049ca291f0383ad780732da123831563c"
 dependencies = [
  "async-trait",
  "bytes",
@@ -812,9 +812,9 @@ dependencies = [
 
 [[package]]
 name = "regex-automata"
-version = "0.4.18"
+version = "0.4.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad8553b9b26413251cbf30e620595c7a41b3887f03da04579c0e6b0d6a06b4b2"
+checksum = "41d60ef07df457506a0a1a2073112eb4aae5733dbd2813c3da77d1b0fd441158"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -823,9 +823,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.8.11"
+version = "0.8.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
+checksum = "d902046e6a28a1e4c3cab97258a0ce11e994903f01c2d97a9447a0b3df85f4f6"
 
 [[package]]
 name = "rustix"
@@ -1190,9 +1190,9 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 
 [[package]]
 name = "uuid"
-version = "1.29.2"
+version = "1.29.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bed99139f7dac9b5cfe5f17be4d66dc7079a34dee1d74bcc77217119240e267c"
+checksum = "3c14b15dffa2f4bd712103e857140aa04a4f2ff6e955c77d7eb8e53ee02a3b64"
 dependencies = [
  "getrandom",
  "js-sys",
